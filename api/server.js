@@ -1,114 +1,134 @@
-const express = require("express");
-const jsonServer = require("json-server");
-const cors = require("cors");
-const app = express();
-const port = 3000;
+// See https://github.com/typicode/json-server#module
+const jsonServer = require('json-server')
+const server = jsonServer.create()
+const router = jsonServer.router('db.json')
+const middlewares = jsonServer.defaults()
 
-const jsonServerMiddleware = jsonServer.router("db.json");
+server.use(middlewares)
+// Add this before server.use(router)
+server.use(jsonServer.rewriter({
+    '/api/*': '/$1',
+    '/blog/:resource/:id/show': '/:resource/:id'
+}))
+server.use(router)
+server.listen(3000, () => {
+    console.log('JSON Server is running')
+})
 
-app.use(cors());
+// Export the Server API
+module.exports = server
 
-app.use(express.json());
+// const express = require("express");
+// const jsonServer = require("json-server");
+// const cors = require("cors");
+// const app = express();
+// const port = 3000;
 
-app.get("/", (req, res) => {
-    res.send("Hello, World!!!");
-});
+// const jsonServerMiddleware = jsonServer.router("db.json");
 
-app.post("/users", (req, res) => {
-    const { email, username, password, address, cpf, hydrometer, isAdmin,  } = req.body;
+// app.use(cors());
 
-    // Verifique se o usuário já existe no banco de dados
-    const existingUser = jsonServerMiddleware.db
-        .get("users")
-        .find({ username })
-        .value();
+// app.use(express.json());
 
-    if (existingUser) {
-        return res
-            .status(400)
-            .json({ success: false, message: "Usuário já existe" });
-    }
+// app.get("/", (req, res) => {
+//     res.send("Hello, World!!!");
+// });
 
-    // Obtenha o último ID de usuário no banco de dados
-    const lastUser = jsonServerMiddleware.db
-        .get("users")
-        .orderBy("id", "desc")
-        .first()
-        .value();
+// app.post("/users", (req, res) => {
+//     const { email, username, password, address, cpf, hydrometer, isAdmin,  } = req.body;
 
-    // Calcule o próximo ID disponível
-    const nextId = lastUser ? lastUser.id + 1 : 1;
+//     // Verifique se o usuário já existe no banco de dados
+//     const existingUser = jsonServerMiddleware.db
+//         .get("users")
+//         .find({ username })
+//         .value();
 
-    // Adicione o novo usuário com o próximo ID
-    jsonServerMiddleware.db
-        .get("users")
-        .push({ id: nextId, email, username, password, address, cpf, hydrometer, paid: false, isAdmin })
-        .write();
+//     if (existingUser) {
+//         return res
+//             .status(400)
+//             .json({ success: false, message: "Usuário já existe" });
+//     }
 
-    res.json({ success: true, message: "Usuário adicionado com sucesso" });
-});
+//     // Obtenha o último ID de usuário no banco de dados
+//     const lastUser = jsonServerMiddleware.db
+//         .get("users")
+//         .orderBy("id", "desc")
+//         .first()
+//         .value();
 
-app.patch("/users/:id/pay", (req, res) => {
-    const userId = parseInt(req.params.id);
-    const user = jsonServerMiddleware.db
-        .get("users")
-        .find({ id: userId })
-        .value();
+//     // Calcule o próximo ID disponível
+//     const nextId = lastUser ? lastUser.id + 1 : 1;
 
-    if (!user) {
-        return res
-            .status(404)
-            .json({ success: false, message: "Usuário não encontrado" });
-    }
+//     // Adicione o novo usuário com o próximo ID
+//     jsonServerMiddleware.db
+//         .get("users")
+//         .push({ id: nextId, email, username, password, address, cpf, hydrometer, paid: false, isAdmin })
+//         .write();
 
-    // Atualize a chave 'paid' para true
-    jsonServerMiddleware.db
-        .get("users")
-        .find({ id: userId })
-        .assign({ paid: true })
-        .write();
+//     res.json({ success: true, message: "Usuário adicionado com sucesso" });
+// });
 
-    res.json({
-        success: true,
-        message: "Status de pagamento atualizado para true",
-    });
-});
+// app.patch("/users/:id/pay", (req, res) => {
+//     const userId = parseInt(req.params.id);
+//     const user = jsonServerMiddleware.db
+//         .get("users")
+//         .find({ id: userId })
+//         .value();
 
-app.post("/users/login", (req, res) => {
-    const { username, password } = req.body;
+//     if (!user) {
+//         return res
+//             .status(404)
+//             .json({ success: false, message: "Usuário não encontrado" });
+//     }
 
-    const users = jsonServerMiddleware.db.get("users").value();
-    const user = users.find(
-        (u) => u.username === username && u.password === password
-    );
+//     // Atualize a chave 'paid' para true
+//     jsonServerMiddleware.db
+//         .get("users")
+//         .find({ id: userId })
+//         .assign({ paid: true })
+//         .write();
 
-    if (user) {
-        res.json({
-            success: true,
-            message: "Login bem-sucedido",
-            userInfo: {
-                id: user.id,
-                email: user.email,
-                username: user.username,
-                address: user.address,
-                CPF: user.CPF,
-                hydrometer: user.hydrometer,
-                paid: user.paid,
-                isAdmin: user.isAdmin,
-            },
-        });
-    } else {
-        res.status(401).json({
-            success: false,
-            message: "Credenciais inválidas",
-        });
-    }
-});
+//     res.json({
+//         success: true,
+//         message: "Status de pagamento atualizado para true",
+//     });
+// });
 
-// Use o JSON Server apenas para as rotas padrão
-app.use(jsonServerMiddleware);
+// app.post("/users/login", (req, res) => {
+//     const { username, password } = req.body;
 
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
+//     const users = jsonServerMiddleware.db.get("users").value();
+//     const user = users.find(
+//         (u) => u.username === username && u.password === password
+//     );
+
+//     if (user) {
+//         res.json({
+//             success: true,
+//             message: "Login bem-sucedido",
+//             userInfo: {
+//                 id: user.id,
+//                 email: user.email,
+//                 username: user.username,
+//                 address: user.address,
+//                 CPF: user.CPF,
+//                 hydrometer: user.hydrometer,
+//                 paid: user.paid,
+//                 isAdmin: user.isAdmin,
+//             },
+//         });
+//     } else {
+//         res.status(401).json({
+//             success: false,
+//             message: "Credenciais inválidas",
+//         });
+//     }
+// });
+
+// // Use o JSON Server apenas para as rotas padrão
+// app.use(jsonServerMiddleware);
+
+// app.listen(port, () => {
+//     console.log(`Servidor rodando em http://localhost:${port}`);
+// });
 

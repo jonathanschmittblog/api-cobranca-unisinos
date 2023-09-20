@@ -1,9 +1,48 @@
 {
-  "posts": [
-    { "id": 1, "title": "json-server", "author": "typicode" }
-  ],
-  "comments": [
-    { "id": 1, "body": "some comment", "postId": 1 }
-  ],
-  "profile": { "name": "typicode" }
+  "users": [
+    {
+      "id": 1,
+      "email": "a@a.com",
+      "username": "admin",
+      "password": "senha",
+      "address": "rua tal",
+      "CPF": "11111111111",
+      "hydrometer": 3241,
+      "paid": true,
+      "isAdmin": true
+    },
+    {
+      "id": 2,
+      "email": "b@b.com",
+      "username": "Joao",
+      "password": "senha",
+      "address": "rua tal",
+      "CPF": "22222222222",
+      "hydrometer": 1231,
+      "paid": true,
+      "isAdmin": false
+    },
+    {
+      "id": 4,
+      "email": "c@c.com",
+      "username": "Lucas",
+      "password": "senha",
+      "address": "rua tal",
+      "CPF": "33333333333",
+      "hydrometer": 2311,
+      "paid": true,
+      "isAdmin": false
+    },
+    {
+      "id": 5,
+      "email": "teste",
+      "username": "teste",
+      "password": "senha",
+      "address": "tesate",
+      "cpf": "te234234234",
+      "hydrometer": 234,
+      "paid": false,
+      "isAdmin": true
+    }
+  ]
 }
